@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- COPIED TO CBS -->
+    <meta charset="utf-8">
+    <title>tester html</title>
+    <meta name="viewport" content="initial-scale=1"/>
+    <script type="text/javascript" src="../jquery/2.1/jquery.js"></script>
+</head>
+<script>
+    var createFunction = function (i) {
+        return function () {
+            console.log('cf: ' + i);
+        };
+    };
+    for (var i = 0; i < 10; i++) {
+        setTimeout(createFunction(i), i * 100);
+    }
+    $(function () {
+        console.log('Bound first')
+    })
+</script>
+<body>
+</body>
+<script>
+    $(document).ready(function () {
+        try {
+            console.log('Document Ready');
+        } catch (err) {
+            console.log('Err:' + err)
+        }
+
+    });
+    function document_ready(x) {
+        console.log('Ready Eddy' + x)
+    }
+    $(document_ready(1))
+    $(document).ready(document_ready(2))
+    $(function setupSomeGlobals() {
+                // Local variable that ends up within closure
+                var num = 666;
+                // Store some references to functions as global variables
+                gAlertNumber = function () {
+                    console.log(num);
+                }
+                gIncreaseNumber = function () {
+                    num++;
+                }
+                gSetNumber = function (x) {
+                    num = x;
+                }
+            }
+    )
+    $(function () {
+        gAlertNumber();
+        gIncreaseNumber();
+        gAlertNumber();
+        gSetNumber(5);
+        gAlertNumber();
+    })
+    function Container(param) {
+        this.member = param;
+    }
+    var myContainer = new Container('abc');
+    Container.prototype.stamp = function (string) {
+        return this.member + string;
+    }
+    console.log("myContainer: " + myContainer.stamp('def'))
+    goofy = 1;
+    function foo(x) {
+        var x1 = x;
+        return function (y) {
+            console.log(x + y + goofy);
+            x1.memb = x1.memb ? x1.memb + 1 : 1;
+            console.log(x1.memb);
+        }
+    }
+
+    var age = 2;
+    var bar = foo(age); // bar is now a closure referencing age.
+    bar(10);
+    goofy = 5;
+    bar(10)
+</script>
+</html>

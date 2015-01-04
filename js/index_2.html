@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- COPIED TO CBS -->
+    <meta charset="utf-8">
+    <title>BaseLine 2</title>
+    <meta name="viewport" content="initial-scale=1"/>
+    <!-- Script names on QBS
+        <link href="?a=dbpage&pageName=selectize.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
+        <script type='text/javascript' src='?a=dbpage&pageName=QuickBaseClient.js'></script>
+        <script type='text/javascript' src='?a=dbpage&pageName=dbo.js'></script>
+        <script type='text/javascript' src='?a=dbpage&pageName=configuration_CM.js'></script>
+        <script type='text/javascript' src='?a=dbpage&pageName=selectize.js'></script>
+    -->
+    <!-- Local Scripts -->
+    <link href="../selectize/css/selectize.default.css" rel="stylesheet">
+    <link rel="stylesheet" href="../datepick/css/jquery.datepick.css">
+
+    <link href="../css/button.css" rel="stylesheet">
+    <script type="text/javascript" src="../jquery/2.1/jquery.js"></script>
+    <script type="text/javascript" src="../qbs/QuickBaseClient.js"></script>
+    <script type="text/javascript" src="../qbs/dbo.js"></script>
+    <script type="text/javascript" src="../selectize/libs/selectize.js"></script>
+    <script src="../datepick/lib/jquery.plugin.js"></script>
+    <script src="../datepick/lib/jquery.datepick.js"></script>
+    <script type="text/javascript" src="configuration_CM.js"></script>
+    <script>
+
+        function flash_notice(which, msg) {
+            $("." + which + "_notice").append("<div>" + msg + "</div>");
+            $("." + which + "_notice").fadeIn(500);
+        }
+
+        function flash_error(msg) {
+            flash_notice("error", msg);
+        }
+        function initialize_car_selector(car_options) {
+            try {
+
+                var selector = $('#select-car').selectize({
+                    options: car_options,
+                    allowEmptyOption: true,
+                    maxItems: 1, // multiple selects - how many
+                    valueField: 'id',
+                    hideSelected: true, // don't show selected items in drop down
+                    labelField: 'title',
+                    searchField: 'title',
+                    sortField: {
+                        field: 'title',
+                        direction: 'asc'
+                    },
+                    onChange: function (value) {
+                        var currentValue = this.getValue();
+                        var option = this.options[currentValue];
+                        console.log('A (me) changed to: ' + option.title);
+                        //  selectorObjectB.trigger('achanged', currentValue);
+
+                    }
+                });
+                cM.car_selector = selector[0].selectize;
+
+            } catch (err) {
+                flash_error(err)
+            }
+        }
+        function get_car_choices() {
+
+            if (cM.no_quickbase) {
+                try {
+                    cM.car_options = [
+                        {
+                            id: 1,
+                            title: 'Ford',
+                            level_0: 'Ford'
+                        },
+                        {
+                            id: 2,
+                            title: 'Volvo'
+                        },
+                        {
+                            id: 3,
+                            title: 'Tesla'
+                        },
+                        {
+                            id: 4,
+                            title: 'Saab'
+                        }];
+                } catch (err) {
+                    flash_error(err)
+                }
+            } else {
+                try {
+                    QB.query(cM.Autocomplete, {
+                        query: cM.Autocomplete.queries.get_values(),
+                        clist: cM.Autocomplete.clist,
+                        slist: cM.Autocomplete.slist
+                    }).then(function (choices, ajax_obj) {
+                        try {
+                            cM.car_options = [];
+                            $.each(choices, function (key, choice) {
+                                choice.id = choice.rid;
+                                choice.title = choice.level_0;
+                                cM.car_options.push(choice)
+                            })
+                        } catch (err) {
+                            flash_error(err)
+                        }
+
+                    }, flash_error);
+
+                } catch (err) {
+                    flash_error(err)
+                }
+            }
+        }
+        ;
+
+    </script>
+    <style>
+        /** * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/) * http://cssreset.com */
+        html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        /* HTML5 display-role reset for older browsers */
+        article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+            display: block;
+        }
+
+        body {
+            line-height: 1;
+        }
+
+        ol, ul {
+            list-style: none;
+        }
+
+        blockquote, q {
+            quotes: none;
+        }
+
+        blockquote:before, blockquote:after, q:before, q:after {
+            content: '';
+            content: none;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+
+    </style>
+    <style>
+        /* Basic elements */
+        /*  Deleted caused issues with header overlaying main
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                position: relative;
+            }
+        */
+        html, *:root {
+            color: rgba(61, 70, 77, 1); /* #3d464d */;
+            font-family: Geneva, Verdana, san-serif;
+            /* Only for open type fonts
+               font-feature-settings: "liga", "onum", "kern";
+               font-kerning: normal;
+            */
+            font-size: 100%;
+            line-height: 1.55;
+            text-rendering: optimizelegibility;
+        }
+
+        body {
+            padding: 1.5rem;
+        }
+
+        .page-wrap {
+            max-width: 50rem;
+            margin: auto
+        }
+
+        .page-header {
+            /* border top conflicts with site_nav
+            border-top: 1px solid #d0d2d4;
+            */
+            /* without background header is translucent - you can see scroll behind */
+            background-color: #ffffff;
+            border-bottom: 1px solid #d0d2d4;
+            box-shadow: 0 0.3rem 0.3rem -0.3rem #000000;
+            position: fixed !important;
+            top: 0;
+            z-index: 100;
+        }
+
+        object.headerLogo {
+            float: left;
+            height: 2rem;
+            margin: 0.25rem 0.4rem 0.15rem 0.1rem;
+        }
+
+    </style>
+
+    <style>
+        /* JT's styling for errors, etc. */
+        .saved_notice, .error_notice, .process_notice {
+            width: 500px;
+            display: none;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 6px;
+            font-size: .9em;
+        }
+
+        .process_notice {
+            background: #B5FFB0;
+        }
+
+        .saved_notice {
+            background: #F7F780;
+        }
+
+        .error_notice {
+            background: #ff6666;
+        }
+
+        .clear_both {
+            clear: both;
+        }
+
+        #chart {
+            max-width: 800px;
+        }
+
+        #selector .select_wrapper {
+            font-size: 10px;
+            width: 200px;
+            height: 200px;
+            float: left;
+            margin: 0 20px 20px 0;
+        }
+
+        #selector .select_wrapper label {
+            font-weight: bold;
+            display: block;
+        }
+
+        #selector .select_wrapper select {
+            width: 200px;
+            height: 200px;
+        }
+
+        .ButtonName {
+            font-size: 12.8px;
+            font-weight: normal;
+        }
+
+        .Vibrant {
+            margin: 0 10px 0 0;
+        }
+
+        #page_title {
+            display: none;
+        }
+    </style>
+    <style>
+        /* styling for site-nav */
+        .page-nav {
+            border-top: 1px solid #d0d2d4;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            /* fix this to rem */
+            margin-top: 1.5rem;
+        }
+
+        .page-nav ul {
+            overflow: visible;
+            list-style: outside none none;
+            padding-left: 0;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            padding-left: 1.4em;
+        }
+        .page-nav li:first-child {
+            width: 30rem;
+        }
+
+        .page-nav li {
+            margin-top: -1px;
+        }
+
+        .nav li, .nav a, .nav ul li, .nav ul a, .nav ol li, .nav ol a {
+            display: inline-block;
+        }
+
+        .page-nav li + li {
+            margin-left: 1rem;
+        }
+
+        .page-nav ul li {
+            display: inline-flex;
+            list-style-type: none;
+            overflow: hidden;
+            position: relative;
+            vertical-align: middle;
+        }
+
+        /*
+                .page-nav a:hover {
+                    border-bottom: 1px solid;
+                    color: rgba(242, 102, 49, 1);
+                    margin-top: 1px;
+                }
+        */
+        /*
+        .page-nav a.active {
+            background-color: rgba(0, 46, 86, 0.1);
+            color: rgba(0, 46, 86, 1);
+        }
+        */
+        /*
+                .page-nav a {
+                    border-top: 1px solid transparent;
+                    color: #727375;
+                    text-decoration: none;
+                }
+        */
+        .nav li, .nav a, .nav ul li, .nav ul a, .nav ol li, .nav ol a {
+            display: inline-block;
+        }
+
+        .page-nav a {
+            padding: 0.38889rem 0.2rem;
+        }
+
+        a, a:visited, .js--toggle-lights {
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .page-content {
+            /* set content below header area - should be a script */
+            margin: 5rem auto auto;
+            word-break: normal;
+            max-width: 48rem;
+        }
+        .page-content li {
+            display: inline-block;
+            margin-left: 5rem;
+            max-width: 10rem;
+            vertical-align: top;
+        }
+    </style>
+    <style>
+        /* styling specific to autocomplete fields */
+        div[name="car_selector"] > div.selectize-control {
+            max-width: 15rem; /* need min & max to avoid box resizing */
+            min-width: 15rem;
+        }
+
+        /* styling specific to datepick */
+        input.date-picker {
+            font-size: 0.9rem;
+            line-height: 1.5rem;
+            width: 8rem;
+        }
+
+        img.trigger.datepick-trigger {
+            height: 1.25rem;
+            left: -1.75rem;
+            position: relative;
+            top: 0.4rem;
+        }
+    </style>
+
+</head>
+<body>
+<div style="display: none;">
+    <img id="calendar-icon" src="../datepick/images/calendar.png" alt="Popup" class="trigger">
+    <!-- svg does not respond to click -->
+    <!--<<object id="calendar-icon" type="image/svg+xml" class="headerLogo" data="images/calendar.svg" alt="??"></object>-->
+</div>
+<div class="page-wrap">
+    <header class="page-header">
+        <nav class="page-nav">
+            <ul>
+                <li>
+                    <object type="image/svg+xml" class="headerLogo" data="../images/qbs-logo.svg"
+                            alt="Cloudbase Services"></object>
+                </li>
+                <li><a class="btn btn-2 btn-2c" name=navButton>Save & Close</a></li>
+                <li><a class="btn btn-2 btn-2c" name=navButton>Download</a></li>
+                <li><a class="btn btn-2 btn-2c" name=navButton>Upload</a></li>
+                <li><a class="btn btn-2 btn-2c" name=navButton>Cancel</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="process_notice">Processing... Please Wait.</div>
+    <div class="saved_notice"></div>
+    <div class="error_notice"></div>
+
+    <header class="page-header">
+    </header>
+    <main class="page-content" role="main">
+        <ul>
+            <li>
+                <div name="car_selector">
+                    <label for="select-car">Pick Your Model:</label>
+                    <select id="select-car" class="demo-default" placeholder="Select a vehicle..."></select>
+                </div>
+
+            </li>
+            <li>
+
+                <div class="date-wrap">
+                    <!-- make read only to prevent users from typing in the date -->
+                    <label for="date_selector">Which Date:</label>
+                    <input id=date_selector class="date-picker" readonly/>
+                </div>
+            </li>
+        </ul>
+
+    </main>
+    <footer>
+
+    </footer>
+</div>
+
+<script>
+    /* resize the screen based on the new window size */
+    $(window).resize(function () {
+        console.log('Resized to:' + screen.width);
+        if (screen.width <= 800) {
+            $('html').css('font-size', '75%')
+        } else if (screen.width < 1280) {
+            $('html').css('font-size', '85%')
+        } else {
+            $('html').css('font-size', '100%')
+        }
+    });
+    $(document).ready(function () {
+        try {
+            console.log('Document Ready');
+            $(window).triggerHandler('resize')
+            get_car_choices();
+            initialize_car_selector(cM.car_options);
+
+
+        } catch (err) {
+            flash_error(err)
+        }
+
+    });
+    $(window).bind('beforeunload', function () {
+        flash_error("Pleaseeee don't leave me!")
+    });
+
+    $('a[name=navButton]').on('click', function (event) {
+        var navButton = $(this);
+        $('a[name=navButton]').each(function () {
+            $(this).removeClass('active');
+        });
+        navButton.addClass('active')
+    })
+    $("input.date-picker").datepick({
+        showOnFocus: false,
+        dateFormat: 'mm/dd/yyyy',
+        showTrigger: '#calendar-icon',
+        onSelect: function (date_selected) {
+            var date_text = $("input.date-picker").val();
+            console.log('selected' + date_selected + ' localDateString: ' + date_text)
+            $('#date_selector').trigger('dateSelected', date_selected);
+        }
+    });
+
+</script>
+</body>
+</html>
